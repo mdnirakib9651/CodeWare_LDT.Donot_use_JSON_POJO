@@ -3,8 +3,11 @@ class AppConstants {
   static const String baseUrl = 'https://reqres.in/';
   static const String createUrl = 'api/users';
   static const String userListUrl = 'api/users?page=';
-  static const String deletUrl = 'api/users/';
+  static const String deleteUrl = 'api/users/2';
   static const String updateUrl = 'api/users/2';
+  static const String registerUrl = 'api/register';
+  static const String logInUrl = 'api/login';
+  static const String singleUserUrl = 'api/users/2';
 
   // static const String shopMaxBaseUrl = 'https://sopmax.compilebd.com/admin/api/v1';
   // static const String catagory = '/categories';

@@ -3,6 +3,7 @@ import 'package:codeware_ltd_task/utill/color_resources.dart';
 import 'package:codeware_ltd_task/utill/style/lato_styles.dart';
 import 'package:codeware_ltd_task/view/basewidget/deshboard_widget.dart';
 import 'package:codeware_ltd_task/view/screen/create_user_screen/create_screen.dart';
+import 'package:codeware_ltd_task/view/screen/profile/profile/profile.dart';
 import 'package:codeware_ltd_task/view/screen/user_list/user_list.dart';
 import 'package:flutter/material.dart';
 
@@ -28,6 +29,7 @@ class _HomePageState extends State<HomePage> {
   static const List<Widget> _deshBoardBottomScreen = <Widget>[
     CreateScreen(),
     UserList(),
+    Profile(),
   ];
 
   @override

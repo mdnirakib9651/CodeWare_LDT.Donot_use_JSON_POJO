@@ -1,15 +1,14 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, non_constant_identifier_names
 
-import 'dart:convert';
-import 'package:codeware_ltd_task/utill/app_constants.dart';
+import 'package:codeware_ltd_task/data/model/response/user_list_model.dart';
 import 'package:codeware_ltd_task/utill/color_resources.dart';
 import 'package:codeware_ltd_task/utill/style/lato_styles.dart';
-import 'package:codeware_ltd_task/view/screen/user_list/user_list.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 
 class EditScreen extends StatefulWidget {
-  const EditScreen({Key? key}) : super(key: key);
+  final UserListModel? user;
+  final Function(UserListModel)? onUpdate;
+  const EditScreen({Key? key,  this.user, this.onUpdate}) : super(key: key);
 
   @override
   State<EditScreen> createState() => _EditScreenState();
@@ -17,31 +16,42 @@ class EditScreen extends StatefulWidget {
 
 class _EditScreenState extends State<EditScreen> {
 
-  TextEditingController nameController = TextEditingController();
-  TextEditingController jobController = TextEditingController();
+  late TextEditingController firstNameController;
+  late TextEditingController lastNameController;
+  late TextEditingController emailController;
 
-  Future<void> updateUser() async{
-    final String name = nameController.text.trim();
-    final String job = jobController.text.trim();
-    final apiResponse = await http.put(
-      Uri.parse('${AppConstants.baseUrl}${AppConstants.updateUrl}'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'name': name,
-        'job' : job,
-      })
+  final bool _isLoading = false;
+
+  void _updateUser() {
+    UserListModel updatedUser = UserListModel(
+      id: widget.user!.id,
+      firstName: firstNameController.text,
+      lastName: lastNameController.text,
+      email: emailController.text,
+      avatar: 'avatar',
     );
-    if(apiResponse.statusCode == 200){
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("User List Update successfully")));
-      final jsonResponse = jsonDecode(apiResponse.body);
-      final update = jsonResponse['updatedAt'];
-      print("User Update at: $update");
-      Navigator.push(context, MaterialPageRoute(builder: (context) => const UserList()));
-    } else{
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Failed to Update user")));
-      print('Error: ${apiResponse.statusCode}');
-    }
+
+    widget.onUpdate!(updatedUser);
+
+    Navigator.pop(context);
   }
+
+  @override
+  void initState() {
+    super.initState();
+    firstNameController = TextEditingController(text: widget.user!.firstName);
+    lastNameController = TextEditingController(text: widget.user!.lastName);
+    emailController = TextEditingController(text: widget.user!.email);
+  }
+
+  @override
+  void dispose() {
+    firstNameController.dispose();
+    lastNameController.dispose();
+    emailController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -55,9 +65,9 @@ class _EditScreenState extends State<EditScreen> {
           Padding(
             padding: const EdgeInsets.only(left: 20, right: 20),
             child: TextFormField(
-              controller: nameController,
+              controller: firstNameController,
               decoration: InputDecoration(
-                  hintText: "User Name",
+                  hintText: "First Name",
                   labelStyle: latoSemiBold18.copyWith(color: ColorResources.black),
                   enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(100),
@@ -79,9 +89,33 @@ class _EditScreenState extends State<EditScreen> {
           Padding(
             padding: const EdgeInsets.only(left: 20, right: 20),
             child: TextFormField(
-              controller: jobController,
+              controller: lastNameController,
               decoration: InputDecoration(
-                  hintText: "Job",
+                  hintText: "Last Name",
+                  labelStyle: latoSemiBold18.copyWith(color: ColorResources.black),
+                  enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(100),
+                      borderSide: BorderSide.none
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(100),
+                      borderSide: BorderSide.none
+                  ),
+                  filled: true,
+                  fillColor: ColorResources.primaryColorShodo,
+                  border: InputBorder.none,
+                  prefixIcon: const Icon(Icons.work, color: ColorResources.primaryColor,)
+              ),
+              cursorColor: ColorResources.black,
+            ),
+          ),
+          const SizedBox(height: 20,),
+          Padding(
+            padding: const EdgeInsets.only(left: 20, right: 20),
+            child: TextFormField(
+              controller: emailController,
+              decoration: InputDecoration(
+                  hintText: "User Email",
                   labelStyle: latoSemiBold18.copyWith(color: ColorResources.black),
                   enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(100),
@@ -103,7 +137,7 @@ class _EditScreenState extends State<EditScreen> {
             padding: const EdgeInsets.only(left: 20, right: 20, top: 50),
             child: InkWell(
               onTap: (){
-                updateUser();
+                _isLoading ? null : _updateUser();
               },
               child: Container(
                 height: 50,
@@ -112,10 +146,11 @@ class _EditScreenState extends State<EditScreen> {
                   borderRadius: BorderRadius.circular(100),
                   color: ColorResources.primaryColor,
                 ),
-                child: Center(child: Text("Update", style: latoBold18.copyWith(color: ColorResources.white),),),
+                child: _isLoading ? const Center(child: CircularProgressIndicator(),) :
+                Center(child: Text("Update", style: latoBold18.copyWith(color: ColorResources.white),),),
               ),
             ),
-          )
+          ),
         ],
       ),
     );
